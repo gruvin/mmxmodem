@@ -1,12 +1,14 @@
 #!/usr/bin/python
 import sys
+from os import remove
+from os import rename
 import serial
 from xmodem import XMODEM
 from time import sleep
 import logging
 
 if len(sys.argv) < 3:
-  print 'Usage: ' + sys.argv[0] + ' <serial-port> <filename> [<dest-filename>]\n'
+  print 'Usage: ' + sys.argv[0] + ' <serial-port> <source-filename> [<local-filename>]\n'
   quit()
 
 sp = sys.argv[1]
@@ -15,9 +17,9 @@ dfn = fn
 if len(sys.argv) == 4: dfn = sys.argv[3]
 
 try:
-    stream = file(fn, 'rb')
+    stream = file(dfn+'.incoming', 'wb')
 except:
-    print 'Oops! Could not open local file %s\n' % (fn)
+    print 'Oops! Could not create local file %s\n' % (fn)
     quit()
     
 logger = logging.getLogger('xmodem')
@@ -33,7 +35,7 @@ try:
     bytesize=8, 
     parity='N',
     stopbits=1,
-    timeout=1 
+    timeout=0.2 
   )
 except:
   print 'ERROR: Could not access serial port ' + sp + '\n'
@@ -74,17 +76,32 @@ s.write("\003");
 sleep(0.1)
 s.flushInput();
 
-s.write('xmodem receive "' + dfn + '"\r')
+s.write('xmodem send "' + fn + '"\r')
 sleep(0.1)
+e = s.readline(); # out own command is echoed back first
+e = s.readline(); # should timeout if no error on MM side
+if e[:18] == "Error: Cannot find":
+    print 'Oops! Remote file %s not found!' % (fn)
+    s.close()
+    stream.close()
+    remove(dfn+'.incoming')
+    quit()
+    
 s.flushInput()
 
-print 'Sending  ' + fn + ' as ' + dfn + ' ...'
+print 'Receiving  ' + fn + ' as ' + dfn + ' ...'
 
-status = modem.send(stream, quiet=0, retry=8)
-if (status):
-    print "Done!"
+bytes = modem.recv(stream, quiet=0, retry=8)
+if (bytes != None):
+    rename(dfn+'.incoming', dfn)
+    print "Done! (%d bytes received)\n" % (bytes)
 else:
-    print "There could be a problem :-("
+    print "There could be a problem :-(\n"
+    if (bytes == 0):
+        remove(dfn+'.incoming')
+    else:
+        print "Partial(?) transfer retained in: %s.incoming" % (dfn)
+    quit();
 
 stream.close()
 s.close()
