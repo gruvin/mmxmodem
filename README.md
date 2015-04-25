@@ -48,7 +48,7 @@ In case it wasn't made clear above ...
 
 #### You do NOT need to initiate XMODEM on the Maximite. Just quit your terminal and go.
 
-(You have to quit your terminal (or at least tell it to disconnect) because these scripts require sole access to the USB serial port.
+You do have to quit your terminal (or at least tell it to disconnect) because these scripts require sole access to the USB serial port.
 
 The scripts take care of initialising the ```xmodem send/receive``` at the Maximite end. When you're done transferring files, simply re=launch your terminal to carry on with the Maximite, where you left off.
 
