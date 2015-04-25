@@ -48,11 +48,13 @@ In case it wasn't made clear above ...
 
 #### You do NOT need to initiate XMODEM on the Maximite. Just quit your terminal and go.
 
-The script takes care of initialising the xmodem receive at the Maximite end, thanks in part to a seemingly undocumented 'Ctrl-C' feature therein -- which will forcibly return immediately to the MM-BASIC command prompt -- ironically from about anywhere _except_ a waiting xmodem transfer! (Understandably, though.)
+(You have to quiot your terminal (or at least tell it to disconnect) because these scripts require sole access to the USB serial port.
 
-The script requires sole access to the serial port. I simply exit out of my terminal emulator(```screen```) then re-connect when the file transfer is done.
+The scripts take care of initialising the ```xmodem send/receive``` at the Maximite end. When you're done transferring files, simply re=launch your terminal to carry on with the Maximite, where you left off.
 
-### XMODEM modification
+### XMODEM module modification
+
+(See TOTO, below!)
 
 This was my first ever Python script. I used Python due to Google informing me that the Python XMODEM module was available.
 
@@ -75,7 +77,7 @@ Not knowing any other way around it at the time, I hacked the module as follows 
 
 I inserted the two middle lines.
 
-*TODO*: Duh! I'll simply copy the entire modified xmodem.py into my own code. It's not very big, after all.
+**TODO**: Duh! I'll simply copy the entire modified xmodem.py into my own code. It's not very big, after all.
 
 ## Xterm configuration
 
