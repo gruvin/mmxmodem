@@ -6,7 +6,7 @@ from time import sleep
 import logging
 
 if len(sys.argv) < 3:
-  print 'Usage: ' + sys.argv[0] + ' <serial-port> <filename> [<dest-filename>]\n\n'
+  print 'Usage: ' + sys.argv[0] + ' <serial-port> <filename> [<dest-filename>]\n'
   quit()
 
 sp = sys.argv[1]
