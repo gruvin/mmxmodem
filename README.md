@@ -65,7 +65,8 @@ the transmission failed.
 
 Not knowing any other way around it at the time, I hacked the module as follows ...
 
-#### xmodem/__init__.py - line 341
+**xmodem/__init__.py - commencing line 341**
+
     #An ACK should be returned
     char = self.getc(1, timeout)
     
