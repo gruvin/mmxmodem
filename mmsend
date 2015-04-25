@@ -1,0 +1,67 @@
+#!/usr/bin/python
+import sys
+import serial
+from xmodem import XMODEM
+from time import sleep
+import logging
+
+if len(sys.argv) < 3:
+  print 'Usage: ' + sys.argv[0] + ' <serial-port> <filename> [<dest-filename>]\n\n'
+  quit()
+
+sp = sys.argv[1]
+fn = sys.argv[2]
+dfn = fn
+if len(sys.argv) == 4: dfn = sys.argv[3]
+
+logger = logging.getLogger('xmodem')
+logger.setLevel(logging.WARNING)
+ch = logging.StreamHandler()
+ch.setLevel(logging.WARNING)
+logger.addHandler(ch)
+
+try:
+  s = serial.Serial(
+    port=sp, 
+    baudrate=115200, 
+    bytesize=8, 
+    parity='N',
+    stopbits=1,
+    timeout=1 
+  )
+except:
+  print 'ERROR: Could not access serial port ' + sp + '\n'
+  quit()
+
+s.flushInput()
+
+def getc(size, timeout=1):
+  return s.read(size) or None
+def putc(data, timeout=1):
+  return s.write(data) or None
+modem = XMODEM(getc, putc)
+
+print "Serial port: " + s.name
+sleep(0.1)
+
+hello = s.readline()
+if hello[:14] != 'Maximite BASIC':
+  print 'Expected "Maximite BASIC...", but got ' + hello + '\nAborting.\n\n'
+  quit()
+
+print "MMBasic connected. Setting up XMODEM transfer"
+s.flushInput();
+s.write("\003"); # forcibly return to prompt
+sleep(0.1)
+s.flushInput();
+s.write('xmodem receive "' + dfn + '"\r')
+sleep(0.1)
+s.flushInput()
+
+print 'Sending  ' + fn + ' as ' + dfn + ' ...'
+
+stream = file(fn, 'rb')
+status = modem.send(stream, quiet=0, retry=8)
+print "Status: ", status
+s.close()
+stream.close()
