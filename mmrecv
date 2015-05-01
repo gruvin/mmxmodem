@@ -92,6 +92,8 @@ s.flushInput()
 print 'Receiving  ' + fn + ' as ' + dfn + ' ...'
 
 bytes = modem.recv(stream, quiet=0, retry=8)
+stream.close()
+
 if (bytes != None):
     rename(dfn+'.incoming', dfn)
     print "Done! (%d bytes received)\n" % (bytes)
@@ -103,6 +105,5 @@ else:
         print "Partial(?) transfer retained in: %s.incoming" % (dfn)
     quit();
 
-stream.close()
 s.close()
 
