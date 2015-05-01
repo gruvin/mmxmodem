@@ -52,7 +52,7 @@ modem = XMODEM(getc, putc)
 found = 0
 for c in range(1, 3):
     hello = s.readline()
-    if hello[:14] == 'Maximite BASIC': 
+    if hello.find('Maximite') != -1: 
         found = 1
         break
     s.close()
@@ -80,7 +80,7 @@ s.write('xmodem send "' + fn + '"\r')
 sleep(0.1)
 e = s.readline(); # out own command is echoed back first
 e = s.readline(); # should timeout if no error on MM side
-if e[:18] == "Error: Cannot find":
+if e[:18] == "Error: Cannot":
     print 'Oops! Remote file %s not found!' % (fn)
     s.close()
     stream.close()
