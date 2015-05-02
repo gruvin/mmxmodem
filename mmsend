@@ -33,7 +33,7 @@ try:
     bytesize=8, 
     parity='N',
     stopbits=1,
-    timeout=1 
+    timeout=3 
   )
 except:
   print 'ERROR: Could not access serial port ' + sp + '\n'
@@ -42,9 +42,12 @@ except:
 s.flushInput()
 
 def getc(size, timeout=1):
-  return s.read(size) or None
+  data = s.read(size)
+  return data or None
 def putc(data, timeout=1):
-  return s.write(data) or None
+  sent = s.write(data)
+  s.flush()
+  return sent or None
 modem = XMODEM(getc, putc)
 
 found = 0
@@ -65,7 +68,7 @@ print "MM-BASIC connected. Setting up XMODEM transfer ..."
 s.flushInput();
 
 # cancel any hanging XMODEM session at Maximite end
-s.write("\030\030")
+s.write("\030\030\030")
 sleep(0.2)
 s.flushInput();
 

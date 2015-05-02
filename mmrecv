@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import sys
-from os import remove
-from os import rename
+from os import remove, rename, unlink
+from os.path import isfile
 import serial
 from xmodem import XMODEM
 from time import sleep
@@ -95,6 +95,7 @@ bytes = modem.recv(stream, quiet=0, retry=8)
 stream.close()
 
 if (bytes != None):
+    if isfile(dfn): unlink(dfn)
     rename(dfn+'.incoming', dfn)
     print "Done! (%d bytes received)\n" % (bytes)
 else:
