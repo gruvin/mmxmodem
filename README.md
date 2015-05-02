@@ -1,7 +1,8 @@
 # mmsend/mmrecv
-## Easily transfer files to/from a Maximite over USB serial (Mac/Linux)
+## Easily transfer files to/from a Maximite over USB serial Mac/Linux/Windows
+#### Requires Python and the xmodem python module
 
-#### DRAFT documentation follows
+### DOCUMENTATION DRAFT
 
 ### Prelude
 
@@ -31,15 +32,22 @@ Example: ```mmsend /dev/ttyACM0 foo.bas wahoo.bas```
 
 Sample session:
 
-    %  ./mmsend /dev/ttyACM0 foo.bas wahoo.bas
+    % ./mmsend /dev/ttyACM0 foo.bas wahoo.bas
+    MM-BASIC connected. Setting up XMODEM transfer ...
+    Sending  foo.bas as wahoo.bas ...
+    Done!
+
+Sample session -- Windows Command Prompt:
+
+    C:\Users\Gruvin\mmxmodem> mmsend com3 foo.bas wahoo.bas
     MM-BASIC connected. Setting up XMODEM transfer ...
     Sending  foo.bas as wahoo.bas ...
     Done!
 
 ### Notes
 
-* All files are transferred in binary mode.
-* Wildcards (multiple files) are NOT handled (on either end). But could be -- one day --, by querying with ```files```, running xmodem multiple times and other such trickery.
+* All files are transferred in binary mode. No CR/LF translation is attempted for text files. But MMBasic hadnles that OK.
+* Wildcards (multiple files) are NOT handled (on either end). Thus, ```mmrecv /dev/tty/ACM0 *.BAS``` will *not* work.
 * Received files often have trailing null characters on the end. I believe this is a bug at the Maximite end -- possibly related to the "A:" drive internal block size or something. (I'm really just guessing.) In any case, I can't really strip them off, because a non-".BAS" file may well have appended null chars intentionally. Any ideas Geoff?
 
 ### Wait! What magic is this?
@@ -50,35 +58,8 @@ In case it wasn't made clear above ...
 
 You do have to quit your terminal (or at least tell it to disconnect) because these scripts require sole access to the USB serial port.
 
-The scripts take care of initialising the ```xmodem send/receive``` at the Maximite end. When you're done transferring files, simply re=launch your terminal to carry on with the Maximite, where you left off.
+The scripts take care of initialising the ```xmodem send/receive``` at the Maximite end. When you're done transferring files, simply re-launch your terminal to carry on with the Maximite, where you left off.
 
-### XMODEM module modification
-
-(See TOTO, below!)
-
-This was my first ever Python script. I used Python due to Google informing me that the Python XMODEM module was available.
-
-It doesn't really matter, but it seems that MM-BASIC does not acknowledge the
-final ```EOT``` (end-of-transmission) character with an ```ACK```. The Python
-XMODEM module takes exception to this and, after a timeout period, reports that
-the transmission failed.
-
-Not knowing any other way around it at the time, I hacked the module as follows ...
-
-**xmodem/__init__.py - commencing line 341**
-
-    #An ACK should be returned
-    char = self.getc(1, timeout)
-    
-    log.info('DONE. (MM-Basic does not acknowledge EOT)')
-    break
-                                                            
-    if char == ACK:
-    break
-
-I inserted the two middle lines.
-
-**TODO**: Duh! I'll simply copy the entire modified xmodem.py into my own code. It's not very big, after all.
 
 ## Xterm configuration
 
