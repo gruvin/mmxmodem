@@ -12,15 +12,15 @@ By default, the 'mini doesn't have an SD-Card. So to transfer files back and for
 
 ### So why these scripts, specifically?
 
-Under Windows, one may use TeraTerm to emulate a VT100 terminal (for which MM-Basic is designed) as serial console. Files can be easily transferred using MM-BASIC's _XMODEM SEND/RECEIVE_ commands and TeraTerm's corresponding built-in Xmodem file transfer features of TeraTerm. But who in the world wants to use Windows? :-P
+Under Windows, one may use TeraTerm to emulate a VT100 terminal (for which MM-Basic is designed) as serial console. Files can be easily transferred using MM-BASIC's _XMODEM SEND/RECEIVE_ commands and TeraTerm's corresponding built-in Xmodem file transfer features. However ...
 
 I generally prefer to use either Mac OS X or Ubuntu Linux, along with Xterm and ```screen```. (See below for some specifics about that.)
 
-So what? Well, you may think that transferring a file to my little Maximite mini would be as simple as initiating the transfer on the 'mini, with ```xmodem receive "test.bas"<CR>```, then simply using ```sx /dev/ttyACM0 test.bas < /dev/ttyACM0 > /dev/ttyACM0```. But there's a catch.
+Now, you may think that transferring a file to my little Maximite mini would be as simple as initiating the transfer on the 'mini, with ```xmodem receive "test.bas"<CR>```, then simply using ```sx /dev/ttyACM0 test.bas < /dev/ttyACM0 > /dev/ttyACM0```. But there's a catch.
 
-It turns out that the Maximite always sends something like, "Maximite BASIC Version 4.5 ...", whenever a new USB serial connection is made. This upsets ```sx``` considerably, resulting in the proverbial, _"Close ... but no cigar"_.
+It happens that the Maximite *always* sends something like, "Maximite BASIC Version 4.5 ..." when a new USB serial connection is made. This upsets ```sx``` considerably, resulting in the proverbial, _"Close ... but ... no cigar!"_ . I *could* have changed the Maximite source to stop it doing this. But I decided against it, since not everyone has that capability for their own Maximite minis.
 
-So, I wrote ```mmsend``` and ```mmrecv``` -- Python scripts that take care of those problems, using the Python XMODEM module (author unknown) and some other tricks.
+Instead, I wrote ```mmsend``` and ```mmrecv``` -- Python scripts that take care of those problems, using the Python XMODEM module (author unknown) and some other tricks.
 
     Usage: mmsend <serial-port> <filename> [<dest-filename>]
 
@@ -30,14 +30,14 @@ and
 
 Example: ```mmsend /dev/ttyACM0 foo.bas wahoo.bas```
 
-Sample session:
+Sample session -- Linux/Mac Shell ...
 
     % ./mmsend /dev/ttyACM0 foo.bas wahoo.bas
     MM-BASIC connected. Setting up XMODEM transfer ...
     Sending  foo.bas as wahoo.bas ...
     Done!
 
-Sample session -- Windows Command Prompt:
+Sample session -- Windows Command Prompt ...
 
     C:\Users\Gruvin\mmxmodem> mmsend com3 foo.bas wahoo.bas
     MM-BASIC connected. Setting up XMODEM transfer ...
@@ -50,15 +50,14 @@ Sample session -- Windows Command Prompt:
 * Wildcards (multiple files) are NOT handled (on either end). Thus, ```mmrecv /dev/tty/ACM0 *.BAS``` will *not* work.
 * Received files often have trailing null characters on the end. I believe this is a bug at the Maximite end -- possibly related to the "A:" drive internal block size or something. (I'm really just guessing.) In any case, I can't really strip them off, because a non-".BAS" file may well have appended null chars intentionally. Any ideas Geoff?
 
-### Wait! What magic is this?
 
-In case it wasn't made clear above ...
+## Wait! What magic is this?
 
 #### You do NOT need to initiate XMODEM on the Maximite. Just quit your terminal and go.
 
 You do have to quit your terminal (or at least tell it to disconnect) because these scripts require sole access to the USB serial port.
 
-The scripts take care of initialising the ```xmodem send/receive``` at the Maximite end. When you're done transferring files, simply re-launch your terminal to carry on with the Maximite, where you left off.
+The scripts take care of initialising the ```xmodem send/receive``` at the Maximite end. When you're done transferring files, simply re-launch your terminal and carry on with the Maximite from where you left off.
 
 
 ## Xterm configuration
