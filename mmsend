@@ -1,9 +1,11 @@
-#!/usr/bin/python
+#!/opt/local/bin/python
 import sys
 import serial
-from xmodem import XMODEM
 from time import sleep
 import logging
+sys.path.insert(0, './modules')
+from mmxmodem import XMODEM
+from mmconnect import mmconnect
 
 if len(sys.argv) < 3:
   print 'Usage: ' + sys.argv[0] + ' <serial-port> <filename> [<dest-filename>]\n'
@@ -20,27 +22,6 @@ except:
     print 'Oops! Could not open local file %s\n' % (fn)
     quit()
     
-logger = logging.getLogger('xmodem')
-logger.setLevel(logging.WARNING)
-ch = logging.StreamHandler()
-ch.setLevel(logging.WARNING)
-logger.addHandler(ch)
-
-try:
-  s = serial.Serial(
-    port=sp, 
-    baudrate=115200, 
-    bytesize=8, 
-    parity='N',
-    stopbits=1,
-    timeout=3 
-  )
-except:
-  print 'ERROR: Could not access serial port ' + sp + '\n'
-  quit()
-
-s.flushInput()
-
 def getc(size, timeout=1):
   data = s.read(size)
   return data or None
@@ -48,43 +29,26 @@ def putc(data, timeout=1):
   sent = s.write(data)
   s.flush()
   return sent or None
-modem = XMODEM(getc, putc)
+xmodem = XMODEM(getc, putc)
 
-found = 0
-for c in range(1, 3):
-    hello = s.readline()
-    if hello.find('Maximite') != -1: 
-        found = 1
-        break
-    
-    # cancel any hanging XMODEM session at Maximite end
-    s.write("\030\030\030")
-    sleep(1.5)
-    s.flushInput();
-    
-    # forcibly return to MMBasic prompt
-    s.write("\003");
-    sleep(0.1)
-    s.flushInput();
+log = logging.getLogger()
+log.setLevel(logging.WARNING)
+ch = logging.StreamHandler(sys.stdout)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
+ch.setFormatter(formatter)
+log.addHandler(ch)
 
-    s.close()
-    sleep(0.2)
-    s.open()
-if found == 0:
-    print 'Expected ... Maximite ... but got ' + hello + '\nAborting.\n\n'
-    quit()
+s = mmconnect(sp)
 
-sleep(0.1)
 print "Maximite connected. Setting up XMODEM transfer ..."
-s.flushInput();
 
-s.write('xmodem receive "' + dfn + '"\r')
-sleep(0.1)
+s.write('xmodemb receive "' + dfn + '"\r')
+sleep(0.2)
 s.flushInput()
 
 print 'Sending  ' + fn + ' as ' + dfn + ' ...'
 
-status = modem.send(stream, quiet=0, retry=8)
+status = xmodem.send(stream, quiet=0, retry=8)
 if (status):
     print "Done!"
 else:
