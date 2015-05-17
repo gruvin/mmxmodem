@@ -1,17 +1,16 @@
 #!/opt/local/bin/python
 import sys
 from os import remove, rename, unlink
-from os.path import isfile
+from os.path import isfile, dirname, realpath
+from time import sleep
+import logging
 import serial
 
-# debugging
-sys.path.insert(0, './modules')
+real_path = dirname(realpath(__file__))
+sys.path.insert(0, real_path + '/modules')
 from mmxmodem import XMODEM
 from mmconnect import mmconnect
 
-#from xmodem import XMODEM
-from time import sleep
-import logging
 
 if len(sys.argv) < 3:
   print 'Usage: ' + sys.argv[0] + ' <serial-port> <source-filename> [<local-filename>]\n'

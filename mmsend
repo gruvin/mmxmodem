@@ -1,9 +1,13 @@
 #!/opt/local/bin/python
 import sys
-import serial
+from os import remove, rename, unlink
+from os.path import isfile, dirname, realpath
 from time import sleep
 import logging
-sys.path.insert(0, './modules')
+import serial
+
+real_path = dirname(realpath(__file__))
+sys.path.insert(0, real_path + '/modules')
 from mmxmodem import XMODEM
 from mmconnect import mmconnect
 
@@ -42,7 +46,7 @@ s = mmconnect(sp)
 
 print "Maximite connected. Setting up XMODEM transfer ..."
 
-s.write('xmodemb receive "' + dfn + '"\r')
+s.write('xmodem receive "' + dfn + '"\r')
 sleep(0.2)
 s.flushInput()
 
